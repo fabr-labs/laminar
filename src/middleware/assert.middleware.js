@@ -3,11 +3,23 @@ const testSummary = {
   passed: 0,
 };
 
+const logResult = (passed, id, values) => {
+  if (passed) {
+    testSummary.passed += 1;
+    console.log('%c ✓ Passed: %o', 'color: #B0D8A4', id);
+  } else {
+    testSummary.failed.push({ id, values });
+    console.log('%c ✗ Failed: %o', 'color: #E84258', id);
+  }
+}
+
 export const assertMiddleware = (ctrl) => (next) => async ({ assert, ...step }) => {
 
   if (assert) {
-    if (assert.reset) {
+
+    if (assert.init) {
       return next({ fn: () => {
+        console.log('%c Running assertions:', 'color: #FEE191; font-weight: bold; font-size: 14px; margin-top: 10px; margin-bottom: 10px;');
         testSummary.failed = [];
         testSummary.passed = 0;
       }});
@@ -15,10 +27,14 @@ export const assertMiddleware = (ctrl) => (next) => async ({ assert, ...step }) 
     
     if (assert.log) {
       return next({ fn: () => {
-        console.log('%c Test Summary:', 'color: #1fe3ed; font-weight: bold; font-size: 14px; margin-top: 10px; margin-bottom: 10px;');
-        console.log('%c Assertions Passed: %o', 'color: #34d947; font-weight: bold; font-size: 14px', testSummary.passed);
-        console.log('%c Assertions Failed: %o', 'color: #ff442b; font-weight: bold; font-size: 14px ; margin-bottom: 10px;', testSummary.failed.length);
-        testSummary.failed.forEach((id) => console.log('%c ✗ %s', 'color: #ff442b; font-weight: bold; margin-top: 4px;', id));
+        console.log('%c Summary:', 'color: #FEE191; font-weight: bold; font-size: 14px; margin-top: font-size: 14px; margin-top: 10px; margin-bottom: 10px;');
+        console.log('%c Assertions Passed: %o', 'color: #B0D8A4; font-weight: bold; font-size: 14px; margin: 10px;', testSummary.passed);
+        console.log('%c Assertions Failed: %o', 'color: #E84258; font-weight: bold; font-size: 14px; margin: 10px;', testSummary.failed.length);
+        testSummary.failed.forEach(({ id, values }) => {
+          console.groupCollapsed('%c ✗ Failed: %o %o', 'color: #E84258', id, values);
+            console.trace();
+          console.groupEnd();
+        });
       }});
     }
   }
@@ -29,51 +45,22 @@ export const assertMiddleware = (ctrl) => (next) => async ({ assert, ...step }) 
 
     if ('equal' in assert) {
       const equal = typeof assert.equal === 'function' ? assert.equal() : assert.equal;
-
-      if (response === equal) {
-        testSummary.passed += 1;
-        console.log('%c ✓ Assertion Passed: %s: %o', 'color: #34d947', step.id, { response, equal });
-      } else {
-        testSummary.failed.push(step.id);
-        console.assert(false, "for %s: %o does not equal %o", step.id, response, equal);
-      }
+      logResult(response === equal, step.id, { response, equal });
     }
 
     if ('deepEqual' in assert) {
-      const deepEqual = typeof assert.deepEqual === 'function' ? assert.deepEqual() : assert.deepEqual;
-
-      if (JSON.stringify(response) === JSON.stringify(deepEqual)) {
-        testSummary.passed += 1;
-        console.log('%c ✓ Assertion Passed: %s: %o', 'color: #34d947', step.id, { response, deepEqual });
-      } else {
-        testSummary.failed.push(step.id);
-        console.assert(false, "for %s: %o does not equal %o", step.id, response, deepEqual);
-      }
+      const deepEqual = typeof assert.deepEqual === 'function' ? assert.deepEqual() : assert.deepEqual
+      logResult(JSON.stringify(response) === JSON.stringify(deepEqual), step.id, { response, deepEqual });
     }
 
     if ('gt' in assert) {
       const gt = typeof assert.gt === 'function' ? assert.gt() : assert.gt;
-
-      if (response > gt) {
-        testSummary.passed += 1;
-        console.log('%c ✓ Assertion Passed: %s: %o', 'color: #34d947', step.id, { gt, response });
-      } else {
-        testSummary.failed.push(step.id);
-        console.assert(false, "for %s: %o is not greater than %o", step.id, response, gt);
-      }
-
+      logResult(response > gt, step.id, { response, gt });
     }
 
     if ('lt' in assert) {
       const lt = typeof assert.lt === 'function' ? assert.lt() : assert.gt;
-
-      if (response < lt) {
-        testSummary.passed += 1;
-        console.log('%c ✓ Assertion Passed: %s: %o', 'color: #34d947', step.id, { response, lt });
-      } else {
-        testSummary.failed.push(step.id);
-        console.assert(false, "for %s: %o is not less than %o", step.id, response, lt);
-      }
+      logResult(response < lt, step.id, { response, lt });
     }
   }
 
