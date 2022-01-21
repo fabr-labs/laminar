@@ -11,7 +11,7 @@ function throwError() {
   throw new Error('Test Error');
 }
 
-const handleErrorMiddleware = (next) => ({ id, fn, args, directives, error, resolved = false }) => {
+const handleErrorMiddleware = (next) => ({ id, fn, args, directives, error, resolved }) => {
 
   if (!resolved) {
     testData.set('HandledErrorMiddleware', true);
@@ -22,7 +22,7 @@ const handleErrorMiddleware = (next) => ({ id, fn, args, directives, error, reso
   return next({ id, fn, args, directives, error, resolved });
 }
 
-const skippedErrorMiddleware = (next) => ({ id, fn, args, directives, error, resolved = false }) => {
+const skippedErrorMiddleware = (next) => ({ id, fn, args, directives, error, resolved }) => {
 
   if (!resolved) {
     testData.set('SkippedErrorMiddleware', true);
