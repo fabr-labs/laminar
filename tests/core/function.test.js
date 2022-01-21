@@ -1,5 +1,5 @@
-import { createController } from "@fabr-labs/laminar";
-import { assertMiddleware } from "@fabr-labs/laminar/middleware/assert.middleware.js";
+import { createController } from "../../src/create-controller.js";
+import { assertMiddleware } from "../../src/middleware/assert.middleware.js";
 
 const ctrl = createController(assertMiddleware);
 

@@ -35,7 +35,19 @@ export const assertMiddleware = (ctrl) => (next) => async ({ assert, ...step }) 
         console.log('%c ✓ Assertion Passed: %s: %o', 'color: #34d947', step.id, { response, equal });
       } else {
         testSummary.failed.push(step.id);
-        console.assert(response === equal, "for %s: %o does not equal %o", step.id, response, equal);
+        console.assert(false, "for %s: %o does not equal %o", step.id, response, equal);
+      }
+    }
+
+    if ('deepEqual' in assert) {
+      const deepEqual = typeof assert.deepEqual === 'function' ? assert.deepEqual() : assert.deepEqual;
+
+      if (JSON.stringify(response) === JSON.stringify(deepEqual)) {
+        testSummary.passed += 1;
+        console.log('%c ✓ Assertion Passed: %s: %o', 'color: #34d947', step.id, { response, deepEqual });
+      } else {
+        testSummary.failed.push(step.id);
+        console.assert(false, "for %s: %o does not equal %o", step.id, response, deepEqual);
       }
     }
 
@@ -47,7 +59,7 @@ export const assertMiddleware = (ctrl) => (next) => async ({ assert, ...step }) 
         console.log('%c ✓ Assertion Passed: %s: %o', 'color: #34d947', step.id, { gt, response });
       } else {
         testSummary.failed.push(step.id);
-        console.assert(response > gt, "for %s: %o is not greater than %o", step.id, response, gt);
+        console.assert(false, "for %s: %o is not greater than %o", step.id, response, gt);
       }
 
     }
@@ -60,7 +72,7 @@ export const assertMiddleware = (ctrl) => (next) => async ({ assert, ...step }) 
         console.log('%c ✓ Assertion Passed: %s: %o', 'color: #34d947', step.id, { response, lt });
       } else {
         testSummary.failed.push(step.id);
-        console.assert(response < lt, "for %s: %o is not less than %o", step.id, response, lt);
+        console.assert(false, "for %s: %o is not less than %o", step.id, response, lt);
       }
     }
   }

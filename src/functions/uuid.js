@@ -7,5 +7,5 @@ function uuidv4() {
 }
 
 export function uuid() {
-  return window?.crypto?.randomUUID() || uuidv4();
+  return window?.crypto?.randomUUID && window.crypto.randomUUID() || uuidv4();
 }

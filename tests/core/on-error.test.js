@@ -1,12 +1,11 @@
-import { createController } from "@fabr-labs/laminar";
-import { assertMiddleware } from "@fabr-labs/laminar/middleware/assert.middleware.js";
-import { asyncMiddleware } from "@fabr-labs/laminar/middleware/async.middleware.js";
-import { mapMiddleware } from "@fabr-labs/laminar/middleware/map.middleware.js";
-import { logMiddleware } from "@fabr-labs/laminar/middleware/log.middleware.js";
+import { createController } from "../../src/create-controller.js";
+import { assertMiddleware } from "../../src/middleware/assert.middleware.js";
+import { asyncMiddleware } from "../../src/middleware/async.middleware.js";
+import { logMiddleware } from "../../src/middleware/log.middleware.js";
 
 const testData = new Map();
 
-const ctrl = createController(mapMiddleware(testData), assertMiddleware, logMiddleware(false), asyncMiddleware);
+const ctrl = createController(assertMiddleware, logMiddleware(false), asyncMiddleware);
 
 function throwError() {
   throw new Error('Test Error');
@@ -14,13 +13,13 @@ function throwError() {
 
 const handleErrorMiddleware = (next) => ({ id, fn, args, directives, error, resolved = false }) => {
 
-  if (!resolved && error.status === 404) {
+  if (!resolved) {
     testData.set('HandledErrorMiddleware', true);
 
     return next({ id, fn, args, directives, error, resolved: true });
   }
 
-  return next({ id, fn, args, directives, error });
+  return next({ id, fn, args, directives, error, resolved });
 }
 
 const skippedErrorMiddleware = (next) => ({ id, fn, args, directives, error, resolved = false }) => {
@@ -28,10 +27,10 @@ const skippedErrorMiddleware = (next) => ({ id, fn, args, directives, error, res
   if (!resolved) {
     testData.set('SkippedErrorMiddleware', true);
 
-    return next({ id, fn, args, directives, error });
+    return next({ id, fn, args, directives, error, resolved });
   }
 
-  return next({ id, fn, args, directives, error });
+  return next({ id, fn, args, directives, error, resolved });
 }
 
 const errorTestFlow = () => {
@@ -39,9 +38,9 @@ const errorTestFlow = () => {
   return [
     { id: 'CatchError', fn: throwError, onError: [skippedErrorMiddleware, handleErrorMiddleware] },
       // Test that the error is caught and the error middleware is called:
-    { id: 'ErrorHandledByMiddleware', mapGet: 'HandledErrorMiddleware', assert: { equal: true }},
+    { id: 'ErrorHandledByMiddleware', fn: () => testData.get('HandledErrorMiddleware'), assert: { equal: true }},
       // Test that the caught error skips the next middleware:
-    { id: 'HandledErrorSkippedByMiddleware', mapGet: 'SkippedErrorMiddleware', assert: { equal: false }},
+    { id: 'HandledErrorSkippedByMiddleware', fn: () => testData.get('SkippedErrorMiddleware'), assert: { equal: undefined }},
   ];
 }
 

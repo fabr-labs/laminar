@@ -1,5 +1,5 @@
-import { createController } from "@fabr-labs/laminar";
-import { assertMiddleware } from "@fabr-labs/laminar/middleware/assert.middleware.js";
+import { createController } from "../../src/create-controller.js";
+import { assertMiddleware } from "../../src/middleware/assert.middleware.js";
 
 import { functionTest } from "../core/function.test.js";
 import { errorTest } from "../core/on-error.test.js";
@@ -13,7 +13,7 @@ export function runTestsFlow() {
   return [
     { id: 'resetTestData', assert: { reset: true }},
     { fn: functionTest },
-    // { fn: errorTest },
+    { fn: errorTest },
     { fn: pushMiddlewareTest },
     { fn: asyncMiddlewareTest },
     { id: 'logTestSummary', assert: { log: true }}

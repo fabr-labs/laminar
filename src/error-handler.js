@@ -1,6 +1,6 @@
 import { applyMiddleware } from './apply-middleware.js';
-import { unhandledError } from './unhandled-error.js';
+import { logUnhandledError } from './log-unhandled-error.js';
 
-export function errorHandler({ onError: middleware = [], fn, args, directives, error }) {
-  return applyMiddleware(unhandledError, middleware)({ fn, args, directives, error });
+export function errorHandler({ id, fn, args, onError: middleware = [], directives, error }) {
+  return applyMiddleware(logUnhandledError, middleware)({ id, fn, args, directives, error });
 }
