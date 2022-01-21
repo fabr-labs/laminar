@@ -1,0 +1,16 @@
+{
+  "name": "laminar",
+  "version": "1.0.0",
+  "description": "Laminar flow controllers",
+  "author": "nverba",
+  "license": "MIT",
+  "private": false,
+  "repository": "git@github.com:fabr-labs/laminar.git",
+  "scripts": {
+    "start": "npx http-server -o ./tests/page/index.html"
+  },
+  "exports": {
+    ".": "./src/create-controller.js",
+    "./middleware/*": "./src/middleware/*.js"
+  }
+}
