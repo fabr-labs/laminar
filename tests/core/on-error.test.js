@@ -34,6 +34,7 @@ const skippedErrorMiddleware = (next) => ({ id, fn, args, directives, error, res
 }
 
 const errorTestFlow = () => {
+  testData.clear();
 
   return [
     { id: 'CatchError', fn: throwError, onError: [skippedErrorMiddleware, handleErrorMiddleware] },
