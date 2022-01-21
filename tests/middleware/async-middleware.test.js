@@ -11,7 +11,7 @@ function delayedResponse (key) {
     setTimeout(() => {
       testData.push(key);
       resolve();
-    }, 100);
+    }, 10);
   });
 }
 
