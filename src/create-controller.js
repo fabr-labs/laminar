@@ -1,6 +1,7 @@
 import { flowGenerator } from './flow-generator.js';
 
 export function createController(...middleware) {
+
   const ctrl = {};
   const mdw = middleware.map(mdw => mdw(ctrl));
 

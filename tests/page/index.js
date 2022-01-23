@@ -5,8 +5,9 @@ import { functionTest } from "../core/function.test.js";
 import { errorTest } from "../core/on-error.test.js";
 import { pushMiddlewareTest } from "../middleware/push-middleware.test.js";
 import { asyncMiddlewareTest } from "../middleware/async-middleware.test.js";
+import { flowLoggerTest } from "../debugging/flow-logger.test.js";
 
-const testTimeout = 25;
+const testTimeout = 1000;
 const ctrl = createController(assertMiddleware);
 
 export function runTestsFlow() {
@@ -21,6 +22,7 @@ export function runTestsFlow() {
     { fn: errorTest },
     { fn: pushMiddlewareTest },
     { fn: asyncMiddlewareTest },
+    { fn: flowLoggerTest },
     { fn: () => clearTimeout(timout) },
     { id: 'logTestSummary', assert: { log: true }}
   ]
