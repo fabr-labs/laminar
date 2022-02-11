@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <style>
+    #list-container {
+      width: 500px;
+      height: 700px;
+      background-color: lightgray;
+      left: 300px;
+      top: 100px;
+      position: absolute;
+      overflow: auto;
+      box-sizing: border-box;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .listItem {
+      width: 90%;
+      height: 50px;
+      background-color: royalblue;
+      margin: 5px;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="list-container">
+    <ul id="ul">
+
+    </ul>
+  </div>
+  
+
+  <script>
+    document.getElementById('ul');
+
+    Array.from({ length: 5000 }, (x, i) => {
+      const li = document.createElement('li');
+      li.className = 'listItem';
+      document.getElementById('ul').appendChild(li);
+    });
+
+  </script>
+</body>
+</html>
