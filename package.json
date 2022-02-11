@@ -7,7 +7,8 @@
   "private": false,
   "repository": "git@github.com:fabr-labs/laminar.git",
   "scripts": {
-    "start": "npx http-server -o ./tests/page/index.html"
+    "start": "npx http-server -o ./tests/pages/index.html",
+    "style": "npx tailwindcss -o ./tests/pages/tailwind.css"
   },
   "exports": {
     ".": "./src/create-controller.js",
