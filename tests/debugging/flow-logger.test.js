@@ -2,7 +2,7 @@ import { createController } from "../../src/create-controller.js";
 import { assertMiddleware } from "../../src/middleware/assert.middleware.js";
 import { asyncMiddleware } from "../../src/middleware/async.middleware.js";
 import { pushFlowMiddleware } from "../../src/middleware/push-flow.middleware.js";
-import { flowLogger } from "../../src/debugging/flow-logger.js";
+import { flowLogger } from "../../src/debugger/flow-logger.js";
 
 let testData = [];
 

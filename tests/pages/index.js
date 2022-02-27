@@ -5,7 +5,7 @@ import { functionTest } from "../core/function.test.js";
 import { errorTest } from "../core/on-error.test.js";
 import { pushMiddlewareTest } from "../middleware/push-middleware.test.js";
 import { asyncMiddlewareTest } from "../middleware/async-middleware.test.js";
-import { flowLoggerTest } from "../debugging/flow-logger.test.js";
+import { flowLoggerTest } from "../debugger/flow-logger.test.js";
 
 const testTimeout = 1000;
 const ctrl = createController(assertMiddleware);

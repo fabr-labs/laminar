@@ -7,29 +7,34 @@
   <title>Document</title>
 
   <style>
-    #list-container {
+    #list-container ul {
       width: 500px;
-      height: 700px;
+      height: 300px;
       background-color: lightgray;
-      left: 300px;
-      top: 100px;
+      left: 100px;
+      top: 400px;
       position: absolute;
-      overflow: auto;
       box-sizing: border-box;
+      overflow-y: scroll;
     }
 
     ul {
+      height: 100%;
+      width: 100%;
       list-style: none;
       padding: 0;
       margin: 0;
     }
 
     .listItem {
-      width: 90%;
-      height: 50px;
+      box-sizing: border-box;
+      padding: 5px 15px 5px 5px;
+    }
+
+    .listItem div {
       background-color: royalblue;
-      margin: 5px;
       cursor: pointer;
+      width: 100%;
       box-sizing: border-box;
     }
   </style>
@@ -42,16 +47,7 @@
     </ul>
   </div>
   
+  <script src="list.js" type="module"></script>
 
-  <script>
-    document.getElementById('ul');
-
-    Array.from({ length: 5000 }, (x, i) => {
-      const li = document.createElement('li');
-      li.className = 'listItem';
-      document.getElementById('ul').appendChild(li);
-    });
-
-  </script>
 </body>
 </html>
