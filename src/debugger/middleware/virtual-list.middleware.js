@@ -129,9 +129,11 @@ export const virtualListMiddleware = (...collections) => {
 
                     if (lastElement.getBoundingClientRect().top >= store[collection.name].bottom + store[collection.name].containerHeight) {
                       const itemHeight = lastElement.getBoundingClientRect().height;
+                      const index = lastElement.dataset.i;
                       store[collection.name].sizeObserver.unobserve(lastElement);
                       lastElement.remove();
                       store[collection.name].endAt -= 1;
+                      container.style.height = `${ store[collection.name].items[index -1].y + store[collection.name].items[index -1].height }px`;
                     }
 
                     while (container.firstElementChild.getBoundingClientRect().top > store[collection.name].top - store[collection.name].containerHeight) {
