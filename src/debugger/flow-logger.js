@@ -3,9 +3,7 @@ import { uuid } from "../functions/uuid.js";
 const logMiddleware = ({ logger = (data) => console.log(data), length }) => (middleware, i) => (ctrl) => (next) => async (step) => {
 
   const startAt = performance.now();
-
   const response = await middleware(ctrl)(next)(step);
-
   const endAt = performance.now();
 
   logger({

@@ -1,5 +1,5 @@
 import { createController } from "../../src/create-controller.js";
-import { virtualListMiddleware } from "../../src/middleware/virtual-list.middleware.js";
+import { virtualListMiddleware } from "../../src/debugger/middleware/virtual-list.middleware.js";
 
 function randomNumberBetween(min, max) {
   return 
@@ -18,6 +18,11 @@ const renderMethod = ({ title, text }) => {
       <div>
         <item-title>${ title }</item-title>
         <item-body>${ text }</item-body>
+        <expandable-item-wrapper>
+          <expandable-item>
+            ${ text }
+          </expandable-item>
+        </expandable-item-wrapper>
       </div>
     </li>
   `
@@ -26,18 +31,25 @@ const renderMethod = ({ title, text }) => {
 const updateMethod = (elem) => {
   const itemTitle = elem.querySelector('item-title');
   const itemBody = elem.querySelector('item-body');
+  const expandableItem = elem.querySelector('expandable-item');
+  const expandableItemWrapper = elem.querySelector('expandable-item-wrapper');
   
-  return ({ title, text }) => {
+  return ({ title, text, index }) => {
     itemTitle.innerHTML = title;
     itemBody.innerHTML = text;
+    elem.addEventListener('click', () => {
+      ctrl.push(() => [
+        { id: 'expandItem', fn: () => expandableItemWrapper.style.height = expandableItemWrapper.getBoundingClientRect().height === 0 ? `${expandableItem.getBoundingClientRect().height}px` : '0px' },
+      ]);
+    });
   }
 }
 
-const ctrl = createController(virtualListMiddleware({ name: 'cars', renderMethod, updateMethod, data }));
+const ctrl = createController(virtualListMiddleware({ name: 'lorem', renderMethod, updateMethod, data }));
 
 const testListFlow = () => {
   return [
-    { id: 'loadList', cars : { attach: '#ul' }}
+    { id: 'loadList', lorem : { attach: '#ul' }}
   ]
 }
 

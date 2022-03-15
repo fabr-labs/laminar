@@ -6,10 +6,11 @@ export const virtualListMiddleware = (...collections) => {
       containerHeight: 0,
       buffer,
       usedBuffer: 0,
-      pool: [],
       observer: undefined,
       observable: undefined,
       observableIndex: 0,
+      sizeObserver: undefined,
+      sizeObserverready: false,
       height: 0,
       renderMethod,
       updateMethod,
@@ -29,8 +30,8 @@ export const virtualListMiddleware = (...collections) => {
   }, {});
 
   return (ctrl) => (next) => (step) => {
-
     for (const collection of collections) {
+
       if (step[collection.name]) {
 
         if (step[collection.name].prepend) {
@@ -45,10 +46,28 @@ export const virtualListMiddleware = (...collections) => {
           }, ...step });
         };
 
-        if (step[collection.name].attach) {
+        if ('attach' in step[collection.name]) {
           return next({ fn: () => {
             store[collection.name].target = document.querySelector(step[collection.name].attach);
             const  { height, top, bottom } = store[collection.name].target.getBoundingClientRect();
+
+            store[collection.name].sizeObserver = new ResizeObserver(entries => {
+              if (!store[collection.name].sizeObserverready) return;
+
+              for (let entry of entries) {
+
+                const index = entry.target.dataset.i;
+                const elementHeight = entry. borderBoxSize[0].blockSize;
+                store[collection.name].items[index].height = elementHeight;    
+
+                for (let i = parseInt(index) + 1; i <= store[collection.name].endAt; i++) {
+                  store[collection.name].items[i].y = (store[collection.name].items[i - 1].y + store[collection.name].items[i - 1].height);
+                  document.querySelector(`[data-i="${i}"]`).style.transform = `translateY(${ store[collection.name].items[i].y }px)`;
+                }
+    
+                store[collection.name].items[index].height = elementHeight;
+              }
+            });
 
             if (height === 0) throw new Error('Target element has no height');
             
@@ -56,7 +75,7 @@ export const virtualListMiddleware = (...collections) => {
             store[collection.name].top = top;
             store[collection.name].bottom = bottom;
             const container = document.createElement('div');
-            store[collection.name].target.appendChild(container);
+            store[collection.name].target.append(container);
             const template = document.createElement('template');
             store[collection.name].observer = new IntersectionObserver(function(entries) {
 
@@ -74,11 +93,12 @@ export const virtualListMiddleware = (...collections) => {
 
                   if (scrollingDown) {
 
-                    const item = container.firstElementChild;
+                    const firstElement = container.firstElementChild;
 
-                    if (item.getBoundingClientRect().bottom <= store[collection.name].top - store[collection.name].containerHeight) {
-                      const itemHeight = item.getBoundingClientRect().height;
-                      item.remove();
+                    if (firstElement.getBoundingClientRect().bottom <= store[collection.name].top - store[collection.name].containerHeight) {
+                      const itemHeight = firstElement.getBoundingClientRect().height;
+                      store[collection.name].sizeObserver.unobserve(firstElement);
+                      firstElement.remove();
                       store[collection.name].startAt += 1;
                     }
 
@@ -96,39 +116,38 @@ export const virtualListMiddleware = (...collections) => {
                       item.i = item.i || store[collection.name].endAt;
                       container.style.height = `${ item.y + item.height }px`;
                       element.style.transform = `translateY(${ item.y }px)`;
+                      element.setAttribute('data-i', item.i);
+
+                      store[collection.name].sizeObserver.observe(element);
+                      store[collection.name].updateMethod(element)({ ...item.data, index: item.i });
                     }
                   }
 
                   if (!scrollingDown) {
 
-                    const item = container.lastElementChild;
+                    const lastElement = container.lastElementChild;
 
-                    // console.log(item.getBoundingClientRect().top <= store[collection.name].bottom + store[collection.name].containerHeight);
-                    // console.log(item.getBoundingClientRect().top, store[collection.name].bottom, store[collection.name].containerHeight);
-                    // console.log(item);
-
-                    if (item.getBoundingClientRect().top >= store[collection.name].bottom + store[collection.name].containerHeight) {
-                      const itemHeight = item.getBoundingClientRect().height;
-                      item.remove();
+                    if (lastElement.getBoundingClientRect().top >= store[collection.name].bottom + store[collection.name].containerHeight) {
+                      const itemHeight = lastElement.getBoundingClientRect().height;
+                      store[collection.name].sizeObserver.unobserve(lastElement);
+                      lastElement.remove();
                       store[collection.name].endAt -= 1;
                     }
 
                     while (container.firstElementChild.getBoundingClientRect().top > store[collection.name].top - store[collection.name].containerHeight) {
 
-                      // console.log(container.firstElementChild);
-                      // console.log(container.firstElementChild.getBoundingClientRect().top, store[collection.name].top, store[collection.name].containerHeight)
-
                       if (store[collection.name].startAt === 0) return;
 
                       const item = store[collection.name].items[store[collection.name].startAt -= 1];
-
-                      console.log(item);
-
                       template.innerHTML = store[collection.name].renderMethod(item.data);
                       const element = template.content.firstElementChild;
                       element.style.position = 'absolute';
                       container.prepend(template.content);
                       element.style.transform = `translateY(${ item.y }px)`;
+                      element.setAttribute('data-i', item.i);
+
+                      store[collection.name].sizeObserver.observe(element);
+                      store[collection.name].updateMethod(element)({ ...item.data, index: item.i });
                     }
                   }
                 }
@@ -146,29 +165,28 @@ export const virtualListMiddleware = (...collections) => {
               template.innerHTML = store[collection.name].renderMethod(item.data);
               const element = template.content.firstElementChild;
               element.style.position = 'absolute';
-              container.appendChild(template.content);
+              container.append(template.content);
               item.height = element.getBoundingClientRect().height;
               item.y = i === 0 ? 0 : store[collection.name].items[i - 1].y + store[collection.name].items[i - 1].height;
               item.i = i;
               container.style.height = `${ item.y + item.height }px`;
               element.style.transform = `translateY(${ item.y }px)`;
+              element.setAttribute('data-i', i);
+              store[collection.name].updateMethod(element)({ ...item.data, index: i });
 
               if (i === 0) {
                 store[collection.name].observer.observe(element);
                 store[collection.name].observable = element;
               }
 
-              store[collection.name].pool.push({
-                element,
-                updateMethod: store[collection.name].updateMethod(element),
-              });
-
-              console.log('limit', item.y + item.height, store[collection.name].bottom + store[collection.name].containerHeight);
+              store[collection.name].sizeObserver.observe(element);
 
               if (item.y + item.height >= store[collection.name].bottom + store[collection.name].containerHeight) {
                 store[collection.name].endAt = i;
+                store[collection.name].sizeObserverready = true;
                 return true;
               }
+              
             });
           }, ...step });
         }

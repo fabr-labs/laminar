@@ -37,14 +37,29 @@
       width: 100%;
       box-sizing: border-box;
     }
+
+    item-content {
+      display: block;
+      overflow: hidden;
+      height: 0;
+    }
+
+    expandable-item-wrapper {
+      height: 0;
+      display: block;
+      overflow: hidden;
+      transition: height 0.33s ease-in-out;
+    }
+
+    expandable-item {
+      display: block;
+    }
   </style>
 </head>
 <body>
 
   <div id="list-container">
-    <ul id="ul">
-
-    </ul>
+    <ul id="ul"></ul>
   </div>
   
   <script src="list.js" type="module"></script>
